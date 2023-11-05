@@ -11,15 +11,20 @@ public class MainActivity extends AppCompatActivity {
 
     final String TAG = "MainActivity";
     private QuizDBHelper dbHelper; // Declare a reference to the QuizDBHelper instance
+    private QuestionsData questionsData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Obtain an instance of the QuizDBHelper
         dbHelper = QuizDBHelper.getInstance(this);
+        questionsData = new QuestionsData(this); // Initialize the QuestionsData instance
+        questionsData.open(); // Open the database
+
+        CSVDataImporter.importDataFromCSV(this, questionsData);
     }
+
 
 
 }
