@@ -140,13 +140,12 @@ public class QuizFragment extends Fragment {
                 radioButton2 = requireView().findViewById(R.id.radioButton2);
                 radioButton3 = requireView().findViewById(R.id.radioButton3);
 
-                radioButton1.setText(question.getCapitalCity());
-                radioButton2.setText(question.getSecondCity());
-                radioButton3.setText(question.getThirdCity());
-
-
-
+                radioButton1.setText(capitalCity);
+                radioButton2.setText(secondCity);
+                radioButton3.setText(thirdCity);
             }
+
+            // else statment
 
         }
     }
