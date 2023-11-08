@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.ContentValues;
 import android.content.res.Configuration;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         dbHelper = QuizDBHelper.getInstance(this);
         questionsData = new QuestionsData(this); // Initialize the QuestionsData instance
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         // Create a new fragment based on the used selection in the nav drawer
         int itemId = menuItem.getItemId();
         if (itemId == R.id.menu_quiz) {
-            fragment = new QuizFragment();
+            fragment = new StartQuizFragment();
         } else if (itemId == R.id.menu_review) {
             fragment = new ReviewQuizFragment();
             //            case R.id.menu_help:
