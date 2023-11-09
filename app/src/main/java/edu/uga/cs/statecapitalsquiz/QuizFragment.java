@@ -11,10 +11,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,9 +36,13 @@ public class QuizFragment extends Fragment {
     private List<Question> questionsList;
 
     private TextView highlightsView;
+    private RadioGroup radioGroup;
     private RadioButton radioButton1;
     private RadioButton radioButton2;
     private RadioButton radioButton3;
+    private Random random;
+    private int correctAnswer; //store the index of the correct answer (the capital city)
+    private int score = 0;
 
 
     public QuizFragment() {
@@ -66,8 +76,8 @@ public class QuizFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_quiz, container, false);
-
+        View view =inflater.inflate(R.layout.fragment_quiz, container, false);
+        return view;
     }
 
     @Override
@@ -87,6 +97,23 @@ public class QuizFragment extends Fragment {
 
         // Execute the retrieval of the job leads in an asynchronous way
         new QuestionDBReader().execute();
+        random = new Random(); //initialiize random generator
+
+        radioGroup = view.findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkId){
+                //check if user selected correct answer
+                RadioButton selectedRadioButton = view.findViewById(checkId);
+                int selected = radioGroup.indexOfChild(selectedRadioButton);
+                if(selected == correctAnswer){
+                    score++;
+                }
+            }
+        });
+        //prints the score of the user
+        TextView userScore = view.findViewById(R.id.textView2);
+        userScore.setText("Score:" + score);
     }
 
 
@@ -100,6 +127,76 @@ public class QuizFragment extends Fragment {
         }
     }
 
+    //attempt at reading random 6 question
+    private void displayRandomQuestions(){
+        //Collections.shuffle(questionsList);
+        int totalQuestion  = questionsList.size();
+        int sixQuestions = 6;
+
+        Set<Integer> selectedQuestions = new HashSet<>();
+        while(selectedQuestions.size() < sixQuestions) {
+            int randIndex = random.nextInt(totalQuestion);
+            selectedQuestions.add(randIndex);
+        }
+        //to display 6 questions from shuffled list
+        //for(int i =0; i<6 && i < questionsList.size(); i++){
+        for(int i : selectedQuestions){
+            Question question = questionsList.get(i);
+            //to display the question and its options as necessary
+            String questionNum = String.valueOf(question.getId());
+            String state = question.getStateName();
+            String capitalCity = question.getCapitalCity();
+            String secondCity = question.getSecondCity();
+            String thirdCity = question.getThirdCity();
+
+            // Update UI elements with the question data
+            TextView highlightsView = requireView().findViewById(R.id.highlightsView);
+            highlightsView.setText("What is the capital of " + state);
+//            //prints the score of the user
+//            TextView userScore = requireView().findViewById(R.id.textView2);
+//            userScore.setText("Score:" + score);
+            //TextView questionNumber = requireView().findViewById(R.id.textView);
+            //questionNumber.setText(questionNum);
+            //shuffle answer choices
+            String[] cities = new String[]{
+                  question.getCapitalCity(),
+                  question.getSecondCity(),
+                  question.getThirdCity()
+            };
+            shuffleChoices(cities);
+            //keeps track of correct answer
+            correctAnswer = Arrays.asList(cities).indexOf(question.getCapitalCity());
+            shuffleRadioButtons(radioButton1, radioButton2, radioButton3);
+            radioButton1 = requireView().findViewById(R.id.radioButton);
+            radioButton2 = requireView().findViewById(R.id.radioButton2);
+            radioButton3 = requireView().findViewById(R.id.radioButton3);
+
+            radioButton1.setText(cities[0]);
+            radioButton2.setText(cities[1]);
+            radioButton3.setText(cities[2]);
+
+
+        }
+    }
+    // Helper method to shuffle RadioButtons
+    private void shuffleRadioButtons(RadioButton... radioButtons) {
+        for (int i = radioButtons.length - 1; i > 0; i--) {
+            int index = random.nextInt(i + 1);
+            // Swap the text of RadioButtons at index i and index
+            String tempText = radioButtons[i].getText().toString();
+            radioButtons[i].setText(radioButtons[index].getText());
+            radioButtons[index].setText(tempText);
+        }
+    }
+    private void shuffleChoices(String[] array){
+        for(int i = array.length - 1;i > 0;i--){
+            int index = random.nextInt(i + 1);
+            //Swap the elements
+            String temp = array[i];
+            array[i] = array[index];
+            array[index] = temp;
+        }
+    }
 
     // This is an AsyncTask class (it extends AsyncTask) to perform DB reading of job leads, asynchronously.
     private class QuestionDBReader extends AsyncTask<Void, List<Question>> {
@@ -144,6 +241,7 @@ public class QuizFragment extends Fragment {
                 radioButton2.setText(secondCity);
                 radioButton3.setText(thirdCity);
             }
+            displayRandomQuestions();
 
             // else statment
 
